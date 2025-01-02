@@ -6,36 +6,31 @@ type Position = (Int, Int)
 class CornerCounter[T](val positions: Map[Position, T]) {
   val logger = com.typesafe.scalalogging.Logger(this.getClass.getName)
 
-  val corners = positions.view.map((p, v) => calcCorner(p, v)).toMap
-  val regions = positions.groupMap(_._2)(_._1).view.mapValues(_.toSet).toMap
-
   def this(grid: Array[Array[T]])(using fromGrid: Array[Array[T]] => Map[Position, T]) = this(fromGrid(grid))
-  def count(p: Position) = corners(p)
+
+  val regions = positions.groupMap(_._2)(_._1).view.mapValues(_.toSet).toMap
+  val corners = positions.view.map((p, v) => calcCorner(p, v)).toMap
 
   def calcCorner[T](p: Position, v: T): (Position, Int) = {
     if(isSingleCell(p)) (p, 4)
     else if(isDoubleCell(p)) (p, 2)
+    else if(isLShapedCell(p)) (p, 2)
     else (p, 0)
   }
 
   def isSingleCell(p: Position): Boolean = {
-    val (x, y) = p
-    val v = positions(p)
-
     val different = Set(
       left(p), 
       right(p),
       up(p),
       down(p),
     )
+    val same = Set.empty[Position]
 
-    different.forall(p => positions(p) != v)
+    isValid((different, same), positions(p))
   }
 
   def isDoubleCell(p: Position): Boolean = {
-    val (x, y) = p
-    val v = positions(p)
-
     val different = Set(
       up(p), 
       down(p),  
@@ -45,15 +40,32 @@ class CornerCounter[T](val positions: Map[Position, T]) {
       left(p),
     )
 
-    rotate((different, same), p).exists { (d, s) => {
-      d.forall(p => positions(p) != v) && s.forall(p => positions(p) == v) 
-    }}
+    rotate((different, same), p).exists(isValid(_, positions(p)))
+  }
+
+  def isLShapedCell(p: Position): Boolean = {
+    val different = Set(
+      down(p),  
+      right(p),
+      left(up(p))
+    )
+    val same = Set(
+      left(p),
+      up(p),
+    )
+
+    rotate((different, same), p).exists(isValid(_, positions(p)))
   }
 
   def rotate(positions: (Set[Position], Set[Position]), pivot: Position): Set[(Set[Position], Set[Position])] = {
     LazyList.iterate(positions) { case (different, same) => {
       (different.map(p => rotate(pivot, p)), same.map(p => rotate(pivot, p)))
     }}.take(4).toSet
+  }
+
+  def isValid[T](ps: (Set[Position], Set[Position]), value: T): Boolean = {
+    val (different, same) = ps
+    different.forall(p => positions(p) != value) && same.forall(p => positions(p) == value) 
   }
 
   def left(p: Position): Position = (p._1, p._2 - 1)

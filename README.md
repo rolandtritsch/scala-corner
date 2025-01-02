@@ -122,11 +122,11 @@ OOX
 - 2 corners
 ### L-shaped Cells
 ```
-?O?
+XO?
 OOX
 ?X?
 ```
-- 1 corners
+- 2 corners
 ### I-shaped Cells
 ```
 ?O?
