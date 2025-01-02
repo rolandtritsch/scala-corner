@@ -76,12 +76,19 @@ E E E . C
 
 ## Design Notes
 
-Internally the lib uses a `Map[(Int, Int), T]` to respresent all regions.
+Internally the lib uses a `Map[(Int, Int), T]` to respresent all regions,
+where `(Int, Int)` is the `Position` of the cell and `T` is the value of
+the cell. If the `Map` got build from an `Array[Array[T]]` the origin of 
+the grid is the top-left corner of the grid.
 
 Note: Determining how many corners a cell has does not require that we check
 on the boundaries of the grid. Instead we just assume that every cell that 
 is not in the `Map` is free space (by returning a default value that represents
-free space).
+free space). This also means that the grid (or more specifically the `Map`) 
+does not have to be a square.
+
+Note: The grid can contain multiple regions with same cell values that are
+not connected. This is not a region finder. It is a corner counter.
 
 This implementation is not optimized for performance. But it will probably be 
 good enough for a lot of use cases. And it can be used (as a reference 
@@ -99,36 +106,42 @@ The patterns use the following symbols ...
 - O the cell must be the same
 - ? the cell can be either
 
+### Single Cell
 ```
 ?X?
 XOX
 ?X?
 ``` 
 - 4 corners
+### Double Cells
 ```
 ?X?
 OOX
 ?X?
 ```
 - 2 corners
+### L-shaped Cells
 ```
 ?O?
 OOX
 ?X?
 ```
 - 1 corners
+### I-shaped Cells
 ```
-?X?
-OOO
-?X?
+?O?
+XOX
+?O?
 ```
 - 0 corners
+### T-shaped Cells
 ``` 
 XOX
 OOO
 ?X?
 ``` 
 - 2 corners
+### X-shaped Cells
 ```
 XOX
 OOO
