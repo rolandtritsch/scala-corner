@@ -79,7 +79,7 @@ E E E . C
 Internally the lib uses a `Map[(Int, Int), T]` to respresent all regions,
 where `(Int, Int)` is the `Position` of the cell and `T` is the value of
 the cell. If the `Map` got build from an `Array[Array[T]]` the origin of 
-the grid is the top-left corner of the grid.
+the grid (0, 0) is the top-left corner of the grid.
 
 Note: Determining how many corners a cell has does not require that we check
 on the boundaries of the grid. Instead we just assume that every cell that 
@@ -127,6 +127,13 @@ OOX
 ?X?
 ```
 - 2 corners
+### O-shaped Cells
+```
+OO?
+OOX
+?X?
+```
+- 1 corners
 ### I-shaped Cells
 ```
 ?O?

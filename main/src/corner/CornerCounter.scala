@@ -8,16 +8,46 @@ class CornerCounter[T](val positions: Map[Position, T]) {
 
   def this(grid: Array[Array[T]])(using fromGrid: Array[Array[T]] => Map[Position, T]) = this(fromGrid(grid))
 
+  val dimensions = {
+    val maxX = positions.keySet.map(_._1).max
+    val maxY = positions.keySet.map(_._2).max
+    (maxX, maxY)
+  }
+
+  override def toString: String = 
+    s"CornerCounter(positions=${positions}, regions=${regions}, corners=${corners})"
+
+  def toStringPrettyGrid: String = {
+    val (maxX, maxY) = dimensions
+    (0 to maxX).map { x => {
+      (0 to maxY).map { y => {
+        positions.getOrElse((x, y), '.')
+      }}.mkString
+    }}.mkString("\n")
+  }
+
+  def toStringPrettyCorners: String = {
+    val (maxX, maxY) = dimensions
+    val cs = (0 to maxX).map { x => {
+      (0 to maxY).map { y => {
+        corners.getOrElse((x, y), 0)
+      }}.mkString
+    }}.mkString("\n")
+    s"corners:\n${cs}"
+  }
+
   val regions = positions.groupMap(_._2)(_._1).view.mapValues(_.toSet).toMap
-  val corners = positions.view.map((p, v) => calcCorner(p, v)).toMap
+  val corners = positions.view.map((p, v) => calcCorner(p, v)).toMap.withDefault(_ => 0)
 
   def calcCorner[T](p: Position, v: T): (Position, Int) = {
     if(isSingleCell(p)) (p, 4)
     else if(isDoubleCell(p)) (p, 2)
     else if(isLShapedCell(p)) (p, 2)
+    else if(isOShapedCell(p)) (p, 1)
     else if(isIShapedCell(p)) (p, 0)
     else if(isTShapedCell(p)) (p, 2)
-    else (p, Int.MinValue)
+    else if(isXShapedCell(p)) (p, 4)
+    else throw new RuntimeException(s"Unexpected case - ${p}")
   }
 
   def isSingleCell(p: Position): Boolean = {
@@ -59,6 +89,20 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     rotate((different, same), p).exists(isValid(_, positions(p)))
   }
 
+  def isOShapedCell(p: Position): Boolean = {
+    val different = Set(
+      down(p),  
+      right(p),
+    )
+    val same = Set(
+      left(p),
+      up(p),
+      left(up(p)),
+    )
+
+    rotate((different, same), p).exists(isValid(_, positions(p)))
+  }
+
   def isIShapedCell(p: Position): Boolean = {
     val different = Set(
       right(p),
@@ -85,6 +129,23 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     )
 
     rotate((different, same), p).exists(isValid(_, positions(p)))
+  }
+
+  def isXShapedCell(p: Position): Boolean = {
+    val different = Set(
+      left(up(p)),
+      right(up(p)),
+      left(down(p)),
+      right(down(p)),
+    )
+    val same = Set(
+      up(p),
+      right(p),
+      left(p),
+      down(p),
+    )
+
+    isValid((different, same), positions(p))
   }
 
   def rotate(positions: (Set[Position], Set[Position]), pivot: Position): Set[(Set[Position], Set[Position])] = {
@@ -141,5 +202,16 @@ object CornerCounter {
     val source = scala.io.Source.fromResource(path)
     val grid = source.getLines().map(_.toCharArray()).toArray
     new CornerCounter(grid)
+  }
+
+  /** @return Set of expected corner counts (for testing). */
+  def fromResourceExpected(path: String): Set[((Int, Int), Int)] = {
+    require(path.nonEmpty, "path.nonEmpty")
+    logger.debug(s"path: ${path}")
+
+    val source = scala.io.Source.fromResource(path)
+    source.getLines().zipWithIndex.flatMap { case (line, x) => {
+      line.zipWithIndex.map { case (char, y) => ((x, y), char.toString.toInt) }
+    }}.toSet
   }
 }
