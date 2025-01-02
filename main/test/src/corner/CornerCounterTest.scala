@@ -66,4 +66,20 @@ class CornerCounterTest extends munit.ScalaCheckSuite {
     assert(counter.isDoubleCell((0, 1)))
     assert(counter.isDoubleCell((2, 1)))
   }
+
+  test("CornerCounter - T-shaped cell") {
+    val counter = CornerCounter.fromResource("./tests/TShapedCell.txt")
+
+    assertEquals(counter.positions.size, 4)
+    assertEquals(counter.positions.size, counter.corners.size)
+    assertEquals(counter.regions.size, 1)
+    assertEquals(counter.corners((1, 1)), 2)
+    assertEquals(counter.corners((1, 0)), 2)
+    assertEquals(counter.corners((1, 2)), 2)
+    assertEquals(counter.corners((2, 1)), 2)
+    assert(counter.isTShapedCell((1, 1)))
+    assert(counter.isDoubleCell((1, 0)))
+    assert(counter.isDoubleCell((1, 2)))
+    assert(counter.isDoubleCell((2, 1)))
+  }
 }

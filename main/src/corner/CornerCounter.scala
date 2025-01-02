@@ -16,6 +16,7 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     else if(isDoubleCell(p)) (p, 2)
     else if(isLShapedCell(p)) (p, 2)
     else if(isIShapedCell(p)) (p, 0)
+    else if(isTShapedCell(p)) (p, 2)
     else (p, Int.MinValue)
   }
 
@@ -66,6 +67,21 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     val same = Set(
       down(p),
       up(p),
+    )
+
+    rotate((different, same), p).exists(isValid(_, positions(p)))
+  }
+
+  def isTShapedCell(p: Position): Boolean = {
+    val different = Set(
+      left(up(p)),
+      right(up(p)),
+      down(p),
+    )
+    val same = Set(
+      up(p),
+      right(p),
+      left(p),
     )
 
     rotate((different, same), p).exists(isValid(_, positions(p)))
