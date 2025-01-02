@@ -5,11 +5,13 @@ class CornerCounterTest extends munit.ScalaCheckSuite {
     val counter = CornerCounter.fromResource("./tests/Basic.txt")
 
     assertEquals(counter.positions.size, 16)
+    assertEquals(counter.regions.size, 5)
   }
 
-  test("CornerCounter - regions") {
-    val counter = CornerCounter.fromResource("./tests/Basic.txt")
+  test("CornerCounter - source - with free space") {
+    val counter = CornerCounter.fromResource("./tests/Basic-WithFreeSpace.txt")
 
+    assertEquals(counter.positions.size, 17)
     assertEquals(counter.regions.size, 5)
   }
 }

@@ -16,13 +16,16 @@ class CornerCounter[T](val positions: Map[Position, T]) {
 object CornerCounter {
   val logger = com.typesafe.scalalogging.Logger(this.getClass.getName)
 
-  given fromGrid[T]: (Array[Array[T]] => Map[Position, T]) = { grid =>
+  given fromGrid[T](using isFreeSpace: (T => Boolean)): (Array[Array[T]] => Map[Position, T]) = { grid =>
     val positions = for {
       i <- grid.indices
       j <- grid(i).indices
+      if !isFreeSpace(grid(i)(j))
     } yield (i, j) -> grid(i)(j)
     positions.toMap
   }
+
+  given isFreeSpace: (Char => Boolean) = _ == '.'
 
   /** @return A CornerCounter initialized with the contents of the given resource. */
   def fromResource(path: String): CornerCounter[Char] = {
