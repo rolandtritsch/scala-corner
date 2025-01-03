@@ -40,7 +40,7 @@ class CornerCounter[T](val positions: Map[Position, T]) {
   val regions = positions.groupMap(_._2)(_._1).view.mapValues(_.toSet).toMap
 
   /** Map of all positions and their corner count in the grid. This is the thing to use. */
-  val corners = positions.view.map((p, v) => calcCorner(p, v)).toMap.withDefault(_ => 0)
+  val corners = positions.keySet.map(calcCorner).toMap.withDefault(_ => 0)
 
   // --- private stuff
 
@@ -50,7 +50,7 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     (maxX, maxY)
   }
 
-  private def calcCorner[T](p: Position, v: T): (Position, Int) = {
+  private def calcCorner(p: Position): (Position, Int) = {
     if(isNoCell(p)) (p, 0)
     else if(isSingleCell(p)) (p, 4)
     else if(isDoubleCell(p)) (p, 2)
@@ -69,6 +69,8 @@ class CornerCounter[T](val positions: Map[Position, T]) {
   }
 
   private def isNoCell(p: Position): Boolean = {
+    logger.debug(s"isNoCell(${p})")
+
     val different = Set.empty[Position]
     val same = Set(
       left(p), 
@@ -85,6 +87,8 @@ class CornerCounter[T](val positions: Map[Position, T]) {
   }
 
   private def isSingleCell(p: Position): Boolean = {
+    logger.debug(s"isSingleCell(${p})")
+
     val different = Set(
       left(p), 
       right(p),
@@ -97,6 +101,8 @@ class CornerCounter[T](val positions: Map[Position, T]) {
   }
 
   private def isDoubleCell(p: Position): Boolean = {
+    logger.debug(s"isDoubleCell(${p})")
+
     val different = Set(
       up(p), 
       down(p),  
@@ -110,6 +116,8 @@ class CornerCounter[T](val positions: Map[Position, T]) {
   }
 
   private def isLShapedCell(p: Position): Boolean = {
+    logger.debug(s"isLShapedCell(${p})")
+
     val different = Set(
       down(p),  
       right(p),
@@ -124,6 +132,8 @@ class CornerCounter[T](val positions: Map[Position, T]) {
   }
 
   private def isOShapedCell(p: Position): Boolean = {
+    logger.debug(s"isOShapedCell(${p})")
+
     val different = Set(
       down(p),  
       right(p),
@@ -138,6 +148,8 @@ class CornerCounter[T](val positions: Map[Position, T]) {
   }
 
   private def isI1ShapedCell(p: Position): Boolean = {
+    logger.debug(s"isI1ShapedCell(${p})")
+
     val different = Set(
       down(p),
       up(p),
@@ -151,6 +163,8 @@ class CornerCounter[T](val positions: Map[Position, T]) {
   }
 
   private def isI2ShapedCell(p: Position): Boolean = {
+    logger.debug(s"isI2ShapedCell(${p})")
+
     val different = Set(
       up(p),
     )
@@ -166,6 +180,8 @@ class CornerCounter[T](val positions: Map[Position, T]) {
   }
 
   private def isT1ShapedCell(p: Position): Boolean = {
+    logger.debug(s"isT1ShapedCell(${p})")
+
     val different = Set(
       left(up(p)),
       right(up(p)),
@@ -181,6 +197,8 @@ class CornerCounter[T](val positions: Map[Position, T]) {
   }
 
   private def isT2ShapedCell(p: Position): Boolean = {
+    logger.debug(s"isT2ShapedCell(${p})")
+
     val different = Set(
       left(up(p)),
       right(up(p)),
@@ -198,6 +216,8 @@ class CornerCounter[T](val positions: Map[Position, T]) {
   }
 
   private def isT3ShapedCell(p: Position): Boolean = {
+    logger.debug(s"isT3ShapedCell(${p})")
+
     val different = Set(
       left(up(p)),
     )
@@ -217,6 +237,8 @@ class CornerCounter[T](val positions: Map[Position, T]) {
   }
 
   private def isT4ShapedCell(p: Position): Boolean = {
+    logger.debug(s"isT4ShapedCell(${p})")
+
     val different = Set(
       left(up(p)),
       down(p),
@@ -234,6 +256,8 @@ class CornerCounter[T](val positions: Map[Position, T]) {
   }
 
   private def isX1ShapedCell(p: Position): Boolean = {
+    logger.debug(s"isX1ShapedCell(${p})")
+
     val different = Set(
       left(up(p)),
       right(up(p)),
@@ -251,6 +275,8 @@ class CornerCounter[T](val positions: Map[Position, T]) {
   }
 
   private def isX2ShapedCell(p: Position): Boolean = {
+    logger.debug(s"isX2ShapedCell(${p})")
+
     val different = Set(
       right(up(p)),
       left(down(p)),
@@ -270,6 +296,8 @@ class CornerCounter[T](val positions: Map[Position, T]) {
   }
 
   private def isZShapedCell(p: Position): Boolean = {
+    logger.debug(s"isZShapedCell(${p})")
+
     val different = Set(
       left(up(p)),
       right(down(p)),
@@ -289,17 +317,27 @@ class CornerCounter[T](val positions: Map[Position, T]) {
   }
 
   private def rotated(positions: (Set[Position], Set[Position]), pivot: Position): Set[(Set[Position], Set[Position])] = {
+    require(!positions._1.contains(pivot), "!positions._1.contains(pivot)")
+    require(!positions._2.contains(pivot), "!positions._2.contains(pivot)")
+    logger.debug(s"rotated(${positions}, ${pivot})")
+
     LazyList.iterate(positions) { case (different, same) => {
       (different.map(p => rotate(pivot, p)), same.map(p => rotate(pivot, p)))
     }}.take(4).toSet
   }
 
   private def flipped(positions: (Set[Position], Set[Position]), pivot: Position): (Set[Position], Set[Position]) = {
+    require(!positions._1.contains(pivot), "!positions._1.contains(pivot)")
+    require(!positions._2.contains(pivot), "!positions._2.contains(pivot)")
+    logger.debug(s"flipped(${positions}, ${pivot})")
+
     val (different, same) = positions
     (different.map(p => flip(pivot, p)), same.map(p => flip(pivot, p)))
   }
 
   private def isValid[T](ps: (Set[Position], Set[Position]), value: T): Boolean = {
+    logger.debug(s"isValid(${ps}, ${value})")
+    
     val (different, same) = ps
     different.forall(p => positions(p) != value) && same.forall(p => positions(p) == value) 
   }
