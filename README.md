@@ -32,7 +32,7 @@ Advent of Code 2024, but will probably prove useful in other contexts.
 
 1. Put the lib into your build file, e.g. `build.sbt` ...
 ```
-libraryDependencies += "com.github.rolandtritsch" %% "scala-corner" % "0.1.0" 
+libraryDependencies += "org.tritsch" %% "scala-corner" % "1.0.3" 
 ```
 2. Create an instance of the `CornerCounter` class ...
 ```scala
