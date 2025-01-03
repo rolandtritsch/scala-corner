@@ -19,7 +19,7 @@ object main
   with PublishModule
 {
   def artifactName = "scala-corner"
-  def publishVersion = "1.0.1"
+  def publishVersion = "1.0.2"
   def pomSettings = PomSettings(
     description = "A simple corner counter",
     organization = "org.tritsch",
