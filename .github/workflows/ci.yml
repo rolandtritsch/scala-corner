@@ -9,7 +9,7 @@ env:
 
 jobs:
   run:
-    name: Build, Test, Deploy
+    name: Build and Test and Publish pages
     strategy:
       matrix:
         java-version: [21]
