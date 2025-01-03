@@ -68,6 +68,18 @@ We are using mill to build and test the lib ...
 Please take a look at `ci.yml` to see how you can build the [documentation][]
 and the [scoverage][] report.
 
+## How to publish a new version?
+
+Update the `build.sc` file and commit and push the change. Call this commit
+`Publish 1.0.3`.
+
+Then you can tag the commit you want to publish and push the tag ...
+```bash
+git tag 1.0.3
+git push origin --tags
+```
+Note: Make sure the tag is new and unique.
+
 ## How to test and debug it?
 
 If you need to debug the lib you can change the log-level in `logback.xml`.
