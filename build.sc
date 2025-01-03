@@ -11,11 +11,15 @@ import com.goyeau.mill.scalafix.ScalafixModule
 import $ivy.`com.lihaoyi::mill-contrib-scoverage:`
 import mill.contrib.scoverage.ScoverageModule
 
+import $ivy.`com.lihaoyi::mill-contrib-sonatypecentral:`
+import mill.contrib.sonatypecentral.SonatypeCentralPublishModule
+
 object main
   extends ScalaModule 
   with ScalafmtModule 
   with ScalafixModule 
-  with ScoverageModule 
+  with ScoverageModule
+  with SonatypeCentralPublishModule
   with PublishModule
 {
   def artifactName = "scala-corner"
