@@ -22,7 +22,7 @@ object main
   def publishVersion = "1.0.1"
   def pomSettings = PomSettings(
     description = "A simple corner counter",
-    organization = "com.github.rolandtritsch",
+    organization = "org.tritsch",
     url = "https://github.com/rolandtritsch/scala-corner",
     licenses = Seq(License.MIT),
     versionControl = VersionControl.github("rolandtritsch", "scala-corner"),
