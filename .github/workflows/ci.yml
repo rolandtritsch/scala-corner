@@ -40,11 +40,11 @@ jobs:
       - name: Run all tests (but the slow ones)
         run: ./mill main.test.testCached
 
-      - name: Generate html scoverage report
-        run: ./mill main.scoverage.htmlReport && mv ./out/main/scoverage/htmlReport.dest ./docs/_docs/scoverage
-
       - name: Generate html docs
         run: ./mill main.docJar
+
+      - name: Generate html scoverage report
+        run: ./mill main.scoverage.htmlReport && mv ./out/main/scoverage/htmlReport.dest ./out/main/docJar.dest/static/scoverage
 
       - name: Setup pages
         if: github.ref == 'refs/heads/trunk'
