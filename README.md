@@ -80,6 +80,8 @@ git push origin --tags
 ```
 Note: Make sure the tag is new and unique.
 
+Please also create a new release on GitHub (manually).
+
 ## How to test and debug it?
 
 If you need to debug the lib you can change the log-level in `logback.xml`.
