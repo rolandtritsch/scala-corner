@@ -3,7 +3,8 @@ name: CI
 on:
   pull_request:
   push:
-
+    tags-ignore:
+      - '**'
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
