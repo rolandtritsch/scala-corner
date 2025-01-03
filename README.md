@@ -36,12 +36,12 @@ libraryDependencies += "org.tritsch" %% "scala-corner" % "1.0.3"
 ```
 2. Create an instance of the `CornerCounter` class ...
 ```scala
-val corners = new CornerCounter(grid)
+val counter = new CornerCounter(grid)
 ```
 3. Call the `count` method with the cordinates you are interested in to get 
    the number of corners for that cell, e.g. ...
 ```scala
-val count = corners.count((0, 0))
+val count = counter.corners((0, 0))
 ```
 The constructor either takes an `Array[Array[T]]` or a `Map[(Int, Int), T]`
 to describe all cells of the regions that need to be counted.
