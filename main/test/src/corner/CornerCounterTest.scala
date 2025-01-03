@@ -115,7 +115,7 @@ class CornerCounterTest extends munit.ScalaCheckSuite {
     assertEquals(counter.corners((1, 2)), 2)
     assertEquals(counter.corners((2, 1)), 2)
     assertEquals(counter.corners((0, 1)), 2)
-    assert(counter.isXShapedCell((1, 1)))
+    assert(counter.isX1ShapedCell((1, 1)))
     assert(counter.isDoubleCell((1, 0)))
     assert(counter.isDoubleCell((1, 2)))
     assert(counter.isDoubleCell((2, 1)))
@@ -124,11 +124,21 @@ class CornerCounterTest extends munit.ScalaCheckSuite {
 
   test("CornerCounter - Medium") {
     val counter = CornerCounter.fromResource("./tests/Medium.txt")
-    //val expected = CornerCounter.fromResourceExpected("./tests/Medium_Corners.txt")
+    val expected = CornerCounter.fromResourceExpected("./tests/Medium_Corners.txt")
 
     assertEquals(counter.positions.size, 100)
     assertEquals(counter.positions.size, counter.corners.size)
     assertEquals(counter.regions.size, 9)
+    assertEquals(counter.corners.toSet, expected)
+  }
+
+  test("CornerCounter - Large") {
+    val counter = CornerCounter.fromResource("./tests/Large.txt")
+    //val expected = CornerCounter.fromResourceExpected("./tests/Large_Corners.txt")
+
+    assertEquals(counter.positions.size, 19600)
+    assertEquals(counter.positions.size, counter.corners.size)
+    assertEquals(counter.regions.size, 26)
     //assertEquals(counter.corners.toSet, expected)
   }
 }

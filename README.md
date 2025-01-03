@@ -106,6 +106,13 @@ The patterns use the following symbols ...
 - O the cell must be the same
 - ? the cell can be either
 
+### No Cell
+```
+OOO
+OOO
+OOO
+``` 
+- 0 corners
 ### Single Cell
 ```
 ?X?
@@ -134,6 +141,13 @@ OOX
 ?X?
 ```
 - 1 corners
+### Z-shaped Cells
+```
+XOO
+OOO
+OOX
+```
+- 2 corners
 ### I-shaped Cells
 ```
 ?X?
@@ -176,10 +190,17 @@ OOO
 ?X?
 ``` 
 - 1 corners
-### X-shaped Cells
+### X1-shaped Cells
 ```
 XOX
 OOO
 XOX
 ```
 - 4 corners
+### X2-shaped Cells
+```
+OOX
+OOO
+XOX
+```
+- 3 corners

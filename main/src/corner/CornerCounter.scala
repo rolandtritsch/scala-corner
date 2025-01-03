@@ -40,9 +40,12 @@ class CornerCounter[T](val positions: Map[Position, T]) {
   val corners = positions.view.map((p, v) => calcCorner(p, v)).toMap.withDefault(_ => 0)
 
   def calcCorner[T](p: Position, v: T): (Position, Int) = {
-    if(isSingleCell(p)) (p, 4)
+    if(isNoCell(p)) (p, 0)
+    else if(isSingleCell(p)) (p, 4)
     else if(isDoubleCell(p)) (p, 2)
-    else if(isXShapedCell(p)) (p, 4)
+    else if(isX1ShapedCell(p)) (p, 4)
+    else if(isX2ShapedCell(p)) (p, 3)
+    else if(isZShapedCell(p)) (p, 2)
     else if(isLShapedCell(p)) (p, 2)
     else if(isOShapedCell(p)) (p, 1)
     else if(isI1ShapedCell(p)) (p, 0)
@@ -52,6 +55,22 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     else if(isT3ShapedCell(p)) (p, 1)
     else if(isT4ShapedCell(p)) (p, 1)
     else throw new RuntimeException(s"Unexpected case - ${p}")
+  }
+
+  def isNoCell(p: Position): Boolean = {
+    val different = Set.empty[Position]
+    val same = Set(
+      left(p), 
+      right(p),
+      up(p),
+      down(p),
+      left(up(p)),
+      right(up(p)),
+      left(down(p)),
+      right(down(p)),
+    )
+
+    isValid((different, same), positions(p))
   }
 
   def isSingleCell(p: Position): Boolean = {
@@ -203,7 +222,7 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     || rotated((dFlipped, sFlipped), p).exists(isValid(_, positions(p)))
   }
 
-  def isXShapedCell(p: Position): Boolean = {
+  def isX1ShapedCell(p: Position): Boolean = {
     val different = Set(
       left(up(p)),
       right(up(p)),
@@ -218,6 +237,44 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     )
 
     isValid((different, same), positions(p))
+  }
+
+  def isX2ShapedCell(p: Position): Boolean = {
+    val different = Set(
+      right(up(p)),
+      left(down(p)),
+      right(down(p)),
+    )
+    val same = Set(
+      up(p),
+      right(p),
+      left(p),
+      down(p),
+      left(up(p)),
+    )
+
+    val (dFlipped, sFlipped) = flipped((different, same), p)
+    rotated((different, same), p).exists(isValid(_, positions(p)))
+    || rotated((dFlipped, sFlipped), p).exists(isValid(_, positions(p)))
+  }
+
+  def isZShapedCell(p: Position): Boolean = {
+    val different = Set(
+      left(up(p)),
+      right(down(p)),
+    )
+    val same = Set(
+      up(p),
+      right(p),
+      left(p),
+      down(p),
+      left(down(p)),
+      right(up(p)),
+    )
+
+    val (dFlipped, sFlipped) = flipped((different, same), p)
+    rotated((different, same), p).exists(isValid(_, positions(p)))
+    || rotated((dFlipped, sFlipped), p).exists(isValid(_, positions(p)))
   }
 
   def rotated(positions: (Set[Position], Set[Position]), pivot: Position): Set[(Set[Position], Set[Position])] = {
