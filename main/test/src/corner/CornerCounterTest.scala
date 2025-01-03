@@ -1,6 +1,6 @@
 package corner
-
 class CornerCounterTest extends munit.ScalaCheckSuite {
+
   test("CornerCounter - basic") {
     val counter = CornerCounter.fromResource("./tests/Basic.txt")
     val expected = CornerCounter.fromResourceExpected("./tests/Basic_Corners.txt")
@@ -9,6 +9,10 @@ class CornerCounterTest extends munit.ScalaCheckSuite {
     assertEquals(counter.positions.size, counter.corners.size)
     assertEquals(counter.regions.size, 5)
     assertEquals(counter.corners.toSet, expected)
+
+    //import corner.CornerCounter.given 
+    //println(counter.toStringPrettyGrid)
+    //println(counter.toStringPrettyCorners)
   }
 
   test("CornerCounter - basic - with free space") {
@@ -29,8 +33,7 @@ class CornerCounterTest extends munit.ScalaCheckSuite {
     assertEquals(counter.positions.size, counter.corners.size)
     assertEquals(counter.regions.size, 1)
     assertEquals(counter.corners((1, 1)), 4)
-    assert(counter.isSingleCell((1, 1)))
-  }
+   }
 
   test("CornerCounter - double cell") {
     val counter = CornerCounter.fromResource("./tests/DoubleCell.txt")
@@ -40,9 +43,7 @@ class CornerCounterTest extends munit.ScalaCheckSuite {
     assertEquals(counter.regions.size, 1)
     assertEquals(counter.corners((1, 1)), 2)
     assertEquals(counter.corners((2, 1)), 2)
-    assert(counter.isDoubleCell((1, 1)))
-    assert(counter.isDoubleCell((2, 1)))
-  }
+   }
 
   test("CornerCounter - L-shaped cell") {
     val counter = CornerCounter.fromResource("./tests/LShapedCell.txt")
@@ -53,9 +54,6 @@ class CornerCounterTest extends munit.ScalaCheckSuite {
     assertEquals(counter.corners((1, 1)), 2)
     assertEquals(counter.corners((1, 2)), 2)
     assertEquals(counter.corners((2, 1)), 2)
-    assert(counter.isLShapedCell((1, 1)))
-    assert(counter.isDoubleCell((1, 2)))
-    assert(counter.isDoubleCell((2, 1)))
   }
 
   test("CornerCounter - O-shaped cell") {
@@ -68,10 +66,6 @@ class CornerCounterTest extends munit.ScalaCheckSuite {
     assertEquals(counter.corners((1, 1)), 1)
     assertEquals(counter.corners((1, 0)), 1)
     assertEquals(counter.corners((0, 1)), 1)
-    assert(counter.isOShapedCell((0, 0)))
-    assert(counter.isOShapedCell((1, 1)))
-    assert(counter.isOShapedCell((1, 0)))
-    assert(counter.isOShapedCell((0, 1)))
   }
 
   test("CornerCounter - I-shaped cell") {
@@ -83,9 +77,6 @@ class CornerCounterTest extends munit.ScalaCheckSuite {
     assertEquals(counter.corners((1, 1)), 0)
     assertEquals(counter.corners((0, 1)), 2)
     assertEquals(counter.corners((2, 1)), 2)
-    assert(counter.isI1ShapedCell((1, 1)))
-    assert(counter.isDoubleCell((0, 1)))
-    assert(counter.isDoubleCell((2, 1)))
   }
 
   test("CornerCounter - T-shaped cell") {
@@ -98,10 +89,6 @@ class CornerCounterTest extends munit.ScalaCheckSuite {
     assertEquals(counter.corners((1, 0)), 2)
     assertEquals(counter.corners((1, 2)), 2)
     assertEquals(counter.corners((2, 1)), 2)
-    assert(counter.isT1ShapedCell((1, 1)))
-    assert(counter.isDoubleCell((1, 0)))
-    assert(counter.isDoubleCell((1, 2)))
-    assert(counter.isDoubleCell((2, 1)))
   }
 
   test("CornerCounter - X-shaped cell") {
@@ -115,11 +102,6 @@ class CornerCounterTest extends munit.ScalaCheckSuite {
     assertEquals(counter.corners((1, 2)), 2)
     assertEquals(counter.corners((2, 1)), 2)
     assertEquals(counter.corners((0, 1)), 2)
-    assert(counter.isX1ShapedCell((1, 1)))
-    assert(counter.isDoubleCell((1, 0)))
-    assert(counter.isDoubleCell((1, 2)))
-    assert(counter.isDoubleCell((2, 1)))
-    assert(counter.isDoubleCell((0, 1)))
   }
 
   test("CornerCounter - Medium") {
@@ -134,11 +116,11 @@ class CornerCounterTest extends munit.ScalaCheckSuite {
 
   test("CornerCounter - Large") {
     val counter = CornerCounter.fromResource("./tests/Large.txt")
-    //val expected = CornerCounter.fromResourceExpected("./tests/Large_Corners.txt")
+    val expected = CornerCounter.fromResourceExpected("./tests/Large_Corners.txt")
 
     assertEquals(counter.positions.size, 19600)
     assertEquals(counter.positions.size, counter.corners.size)
     assertEquals(counter.regions.size, 26)
-    //assertEquals(counter.corners.toSet, expected)
+    assertEquals(counter.corners.toSet, expected)
   }
 }

@@ -61,18 +61,20 @@ E E E . C
 ```
 ## How to build it?
 
-???
-
-- Documentation
-- Scoverage
+We are using mill to build and test the lib ...
+```bash
+./mill main.test
+```
+Please take a look at `ci.yml` to see how you can build the [documentation][]
+and the [scoverage][] report.
 
 ## How to test and debug it?
 
-???
+If you need to debug the lib you can change the log-level in `logback.xml`.
 
 ## How to contribute?
 
-???
+Please feel free to fork the repo and submit pull requests.
 
 ## Design Notes
 
@@ -98,7 +100,7 @@ frameworks).
 Conceptionally the implementation moves a 3x3 grid over all cells and checks
 if the middle cell matches one of the patterns below.
 
-Note: (Some of) These patterns need to be rotated 4 times.
+Note: (Some of) These patterns need to be (flipped and then) rotated 4 times.
 
 The patterns use the following symbols ...
 
@@ -204,3 +206,6 @@ OOO
 XOX
 ```
 - 3 corners
+
+[documentation]: https://tedn.life/scala-corner/index.html
+[scoverage]: https://tedn.life/scala-corner/scoverage/index.html

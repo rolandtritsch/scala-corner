@@ -2,44 +2,55 @@ package corner
 
 type Position = (Int, Int)
 
-/** The CornerCounter. */
+/** The CornerCounter. Initialized with a set of positions. */
 class CornerCounter[T](val positions: Map[Position, T]) {
   val logger = com.typesafe.scalalogging.Logger(this.getClass.getName)
 
+  /** @return a CornerCounter initialized with the contents of the given Array. */
   def this(grid: Array[Array[T]])(using fromGrid: Array[Array[T]] => Map[Position, T]) = this(fromGrid(grid))
 
-  val dimensions = {
+  override def toString: String = 
+    s"CornerCounter(positions=${positions}, regions=${regions}, corners=${corners})"
+
+  /** @return a pretty string representation of the grid. */
+  def toStringPrettyGrid(using freeSpaceValue: T): String = {
+    val (maxX, maxY) = dimensions
+    val ps = 
+      (0 to maxX).map { x => {
+        (0 to maxY).map { y => {
+          positions.getOrElse((x, y), freeSpaceValue)
+        }}.mkString
+      }}.mkString("\n")
+    s"grid:\n${ps}"
+  }
+
+  /** @return a pretty string representation of the corner counts. */  
+  def toStringPrettyCorners: String = {
+    val (maxX, maxY) = dimensions
+    val cs = 
+      (0 to maxX).map { x => {
+        (0 to maxY).map { y => {
+          corners.getOrElse((x, y), 0)
+        }}.mkString
+      }}.mkString("\n")
+    s"corners:\n${cs}"
+  }
+
+  /** All regions in the grid. Just used for testing. */
+  val regions = positions.groupMap(_._2)(_._1).view.mapValues(_.toSet).toMap
+
+  /** Map of all positions and their corner count in the grid. This is the thing to use. */
+  val corners = positions.view.map((p, v) => calcCorner(p, v)).toMap.withDefault(_ => 0)
+
+  // --- private stuff
+
+  private val dimensions = {
     val maxX = positions.keySet.map(_._1).max
     val maxY = positions.keySet.map(_._2).max
     (maxX, maxY)
   }
 
-  override def toString: String = 
-    s"CornerCounter(positions=${positions}, regions=${regions}, corners=${corners})"
-
-  def toStringPrettyGrid: String = {
-    val (maxX, maxY) = dimensions
-    (0 to maxX).map { x => {
-      (0 to maxY).map { y => {
-        positions.getOrElse((x, y), '.')
-      }}.mkString
-    }}.mkString("\n")
-  }
-
-  def toStringPrettyCorners: String = {
-    val (maxX, maxY) = dimensions
-    val cs = (0 to maxX).map { x => {
-      (0 to maxY).map { y => {
-        corners.getOrElse((x, y), 0)
-      }}.mkString
-    }}.mkString("\n")
-    s"corners:\n${cs}"
-  }
-
-  val regions = positions.groupMap(_._2)(_._1).view.mapValues(_.toSet).toMap
-  val corners = positions.view.map((p, v) => calcCorner(p, v)).toMap.withDefault(_ => 0)
-
-  def calcCorner[T](p: Position, v: T): (Position, Int) = {
+  private def calcCorner[T](p: Position, v: T): (Position, Int) = {
     if(isNoCell(p)) (p, 0)
     else if(isSingleCell(p)) (p, 4)
     else if(isDoubleCell(p)) (p, 2)
@@ -57,7 +68,7 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     else throw new RuntimeException(s"Unexpected case - ${p}")
   }
 
-  def isNoCell(p: Position): Boolean = {
+  private def isNoCell(p: Position): Boolean = {
     val different = Set.empty[Position]
     val same = Set(
       left(p), 
@@ -73,7 +84,7 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     isValid((different, same), positions(p))
   }
 
-  def isSingleCell(p: Position): Boolean = {
+  private def isSingleCell(p: Position): Boolean = {
     val different = Set(
       left(p), 
       right(p),
@@ -85,7 +96,7 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     isValid((different, same), positions(p))
   }
 
-  def isDoubleCell(p: Position): Boolean = {
+  private def isDoubleCell(p: Position): Boolean = {
     val different = Set(
       up(p), 
       down(p),  
@@ -98,7 +109,7 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     rotated((different, same), p).exists(isValid(_, positions(p)))
   }
 
-  def isLShapedCell(p: Position): Boolean = {
+  private def isLShapedCell(p: Position): Boolean = {
     val different = Set(
       down(p),  
       right(p),
@@ -112,7 +123,7 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     rotated((different, same), p).exists(isValid(_, positions(p)))
   }
 
-  def isOShapedCell(p: Position): Boolean = {
+  private def isOShapedCell(p: Position): Boolean = {
     val different = Set(
       down(p),  
       right(p),
@@ -126,7 +137,7 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     rotated((different, same), p).exists(isValid(_, positions(p)))
   }
 
-  def isI1ShapedCell(p: Position): Boolean = {
+  private def isI1ShapedCell(p: Position): Boolean = {
     val different = Set(
       down(p),
       up(p),
@@ -139,7 +150,7 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     rotated((different, same), p).exists(isValid(_, positions(p)))
   }
 
-  def isI2ShapedCell(p: Position): Boolean = {
+  private def isI2ShapedCell(p: Position): Boolean = {
     val different = Set(
       up(p),
     )
@@ -154,7 +165,7 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     rotated((different, same), p).exists(isValid(_, positions(p)))
   }
 
-  def isT1ShapedCell(p: Position): Boolean = {
+  private def isT1ShapedCell(p: Position): Boolean = {
     val different = Set(
       left(up(p)),
       right(up(p)),
@@ -169,7 +180,7 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     rotated((different, same), p).exists(isValid(_, positions(p)))
   }
 
-  def isT2ShapedCell(p: Position): Boolean = {
+  private def isT2ShapedCell(p: Position): Boolean = {
     val different = Set(
       left(up(p)),
       right(up(p)),
@@ -186,7 +197,7 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     rotated((different, same), p).exists(isValid(_, positions(p)))
   }
 
-  def isT3ShapedCell(p: Position): Boolean = {
+  private def isT3ShapedCell(p: Position): Boolean = {
     val different = Set(
       left(up(p)),
     )
@@ -205,7 +216,7 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     || rotated((dFlipped, sFlipped), p).exists(isValid(_, positions(p)))
   }
 
-  def isT4ShapedCell(p: Position): Boolean = {
+  private def isT4ShapedCell(p: Position): Boolean = {
     val different = Set(
       left(up(p)),
       down(p),
@@ -222,7 +233,7 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     || rotated((dFlipped, sFlipped), p).exists(isValid(_, positions(p)))
   }
 
-  def isX1ShapedCell(p: Position): Boolean = {
+  private def isX1ShapedCell(p: Position): Boolean = {
     val different = Set(
       left(up(p)),
       right(up(p)),
@@ -239,7 +250,7 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     isValid((different, same), positions(p))
   }
 
-  def isX2ShapedCell(p: Position): Boolean = {
+  private def isX2ShapedCell(p: Position): Boolean = {
     val different = Set(
       right(up(p)),
       left(down(p)),
@@ -258,7 +269,7 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     || rotated((dFlipped, sFlipped), p).exists(isValid(_, positions(p)))
   }
 
-  def isZShapedCell(p: Position): Boolean = {
+  private def isZShapedCell(p: Position): Boolean = {
     val different = Set(
       left(up(p)),
       right(down(p)),
@@ -277,29 +288,29 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     || rotated((dFlipped, sFlipped), p).exists(isValid(_, positions(p)))
   }
 
-  def rotated(positions: (Set[Position], Set[Position]), pivot: Position): Set[(Set[Position], Set[Position])] = {
+  private def rotated(positions: (Set[Position], Set[Position]), pivot: Position): Set[(Set[Position], Set[Position])] = {
     LazyList.iterate(positions) { case (different, same) => {
       (different.map(p => rotate(pivot, p)), same.map(p => rotate(pivot, p)))
     }}.take(4).toSet
   }
 
-  def flipped(positions: (Set[Position], Set[Position]), pivot: Position): (Set[Position], Set[Position]) = {
+  private def flipped(positions: (Set[Position], Set[Position]), pivot: Position): (Set[Position], Set[Position]) = {
     val (different, same) = positions
     (different.map(p => flip(pivot, p)), same.map(p => flip(pivot, p)))
   }
 
-  def isValid[T](ps: (Set[Position], Set[Position]), value: T): Boolean = {
+  private def isValid[T](ps: (Set[Position], Set[Position]), value: T): Boolean = {
     val (different, same) = ps
     different.forall(p => positions(p) != value) && same.forall(p => positions(p) == value) 
   }
 
-  def left(p: Position): Position = (p._1, p._2 - 1)
-  def right(p: Position): Position = (p._1, p._2 + 1)
-  def up(p: Position): Position = (p._1 - 1, p._2)
-  def down(p: Position): Position = (p._1 + 1, p._2)
+  private def left(p: Position): Position = (p._1, p._2 - 1)
+  private def right(p: Position): Position = (p._1, p._2 + 1)
+  private def up(p: Position): Position = (p._1 - 1, p._2)
+  private def down(p: Position): Position = (p._1 + 1, p._2)
 
   /** @return the flipped position (vertial the given pivot) */
-  def flip(pivot: Position, p: Position): Position = {
+  private def flip(pivot: Position, p: Position): Position = {
     if (p == up(pivot)) p 
     else if (p == down(pivot)) p 
     else if (p == left(pivot)) right(pivot) 
@@ -325,9 +336,11 @@ class CornerCounter[T](val positions: Map[Position, T]) {
   }
 }
 
+/** The CornerCounter companion. */
 object CornerCounter {
   val logger = com.typesafe.scalalogging.Logger(this.getClass.getName)
 
+  /** @return a Mapinitialized with the contents of the given Array. Used by the ctor. */
   given fromGrid[T](using isFreeSpace: (T => Boolean))(using freeSpaceValue: T): (Array[Array[T]] => Map[Position, T]) = { grid =>
     val positions = for {
       x <- grid.indices
@@ -341,7 +354,7 @@ object CornerCounter {
   given freeSpaceValue: Char = '.'
   given isFreeSpace: (Char => Boolean) = _ == freeSpaceValue
 
-  /** @return A CornerCounter initialized with the contents of the given resource. */
+  /** @return a CornerCounter initialized with the contents of the given resource. */
   def fromResource(path: String): CornerCounter[Char] = {
     require(path.nonEmpty, "path.nonEmpty")
     logger.debug(s"path: ${path}")
@@ -351,7 +364,7 @@ object CornerCounter {
     new CornerCounter(grid)
   }
 
-  /** @return Set of expected corner counts (for testing). */
+  /** @return the Set of expected corner counts (for testing). */
   def fromResourceExpected(path: String): Set[((Int, Int), Int)] = {
     require(path.nonEmpty, "path.nonEmpty")
     logger.debug(s"path: ${path}")
