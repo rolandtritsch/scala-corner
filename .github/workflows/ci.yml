@@ -44,7 +44,7 @@ jobs:
         run: ./mill main.docJar
 
       - name: Generate html scoverage report
-        run: ./mill main.scoverage.htmlReport && mv ./out/main/scoverage/htmlReport.dest ./out/main/docJar.dest/static/scoverage
+        run: ./mill main.scoverage.htmlReport && mv ./out/main/scoverage/htmlReport.dest ./out/main/docJar.dest/javadoc/scoverage
 
       - name: Setup pages
         if: github.ref == 'refs/heads/trunk'
