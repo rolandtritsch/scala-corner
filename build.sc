@@ -1,6 +1,9 @@
+package build
+
 import mill._
 import mill.scalalib._
 import mill.scalalib.scalafmt._
+import mill.scalalib.publish._
 
 import $ivy.`com.goyeau::mill-scalafix::0.4.0`
 import com.goyeau.mill.scalafix.ScalafixModule
@@ -8,7 +11,23 @@ import com.goyeau.mill.scalafix.ScalafixModule
 import $ivy.`com.lihaoyi::mill-contrib-scoverage:`
 import mill.contrib.scoverage.ScoverageModule
 
-object main extends ScalaModule with ScoverageModule with ScalafmtModule with ScalafixModule {
+object main
+  extends ScalaModule 
+  with ScalafmtModule 
+  with ScalafixModule 
+  with ScoverageModule 
+  with PublishModule
+{
+  def artifactName = "scala-corner"
+  def publishVersion = "0.1.1"
+  def pomSettings = PomSettings(
+    description = "A simple corner counter",
+    organization = "com.github.rolandtritsch",
+    url = "https://github.com/rolandtritsch/scala-corner",
+    licenses = Seq(License.MIT),
+    versionControl = VersionControl.github("rolandtritsch", "scala-corner"),
+    developers = Seq(Developer("rolandtritsch", "Roland Tritsch", "https://github.com/rolandtritsch"))
+  )
   def scalaVersion = "3.4.3"
   def scalacOptions = Seq("-Wunused:imports", "-deprecation", "-Xfatal-warnings")
   def scoverageVersion = "2.2.1"

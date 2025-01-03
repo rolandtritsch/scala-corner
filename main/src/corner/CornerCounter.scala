@@ -42,11 +42,15 @@ class CornerCounter[T](val positions: Map[Position, T]) {
   def calcCorner[T](p: Position, v: T): (Position, Int) = {
     if(isSingleCell(p)) (p, 4)
     else if(isDoubleCell(p)) (p, 2)
+    else if(isXShapedCell(p)) (p, 4)
     else if(isLShapedCell(p)) (p, 2)
     else if(isOShapedCell(p)) (p, 1)
-    else if(isIShapedCell(p)) (p, 0)
-    else if(isTShapedCell(p)) (p, 2)
-    else if(isXShapedCell(p)) (p, 4)
+    else if(isI1ShapedCell(p)) (p, 0)
+    else if(isI2ShapedCell(p)) (p, 0)
+    else if(isT1ShapedCell(p)) (p, 2)
+    else if(isT2ShapedCell(p)) (p, 2)
+    else if(isT3ShapedCell(p)) (p, 1)
+    else if(isT4ShapedCell(p)) (p, 1)
     else throw new RuntimeException(s"Unexpected case - ${p}")
   }
 
@@ -72,7 +76,7 @@ class CornerCounter[T](val positions: Map[Position, T]) {
       left(p),
     )
 
-    rotate((different, same), p).exists(isValid(_, positions(p)))
+    rotated((different, same), p).exists(isValid(_, positions(p)))
   }
 
   def isLShapedCell(p: Position): Boolean = {
@@ -86,7 +90,7 @@ class CornerCounter[T](val positions: Map[Position, T]) {
       up(p),
     )
 
-    rotate((different, same), p).exists(isValid(_, positions(p)))
+    rotated((different, same), p).exists(isValid(_, positions(p)))
   }
 
   def isOShapedCell(p: Position): Boolean = {
@@ -100,23 +104,38 @@ class CornerCounter[T](val positions: Map[Position, T]) {
       left(up(p)),
     )
 
-    rotate((different, same), p).exists(isValid(_, positions(p)))
+    rotated((different, same), p).exists(isValid(_, positions(p)))
   }
 
-  def isIShapedCell(p: Position): Boolean = {
+  def isI1ShapedCell(p: Position): Boolean = {
     val different = Set(
-      right(p),
-      left(p),
-    )
-    val same = Set(
       down(p),
       up(p),
     )
+    val same = Set(
+      right(p),
+      left(p),
+    )
 
-    rotate((different, same), p).exists(isValid(_, positions(p)))
+    rotated((different, same), p).exists(isValid(_, positions(p)))
   }
 
-  def isTShapedCell(p: Position): Boolean = {
+  def isI2ShapedCell(p: Position): Boolean = {
+    val different = Set(
+      up(p),
+    )
+    val same = Set(
+      right(p),
+      left(p),
+      down(p),
+      left(down(p)),
+      right(down(p)),
+    )
+
+    rotated((different, same), p).exists(isValid(_, positions(p)))
+  }
+
+  def isT1ShapedCell(p: Position): Boolean = {
     val different = Set(
       left(up(p)),
       right(up(p)),
@@ -128,7 +147,60 @@ class CornerCounter[T](val positions: Map[Position, T]) {
       left(p),
     )
 
-    rotate((different, same), p).exists(isValid(_, positions(p)))
+    rotated((different, same), p).exists(isValid(_, positions(p)))
+  }
+
+  def isT2ShapedCell(p: Position): Boolean = {
+    val different = Set(
+      left(up(p)),
+      right(up(p)),
+    )
+    val same = Set(
+      up(p),
+      right(p),
+      left(p),
+      down(p),
+      left(down(p)),
+      right(down(p)),
+    )
+
+    rotated((different, same), p).exists(isValid(_, positions(p)))
+  }
+
+  def isT3ShapedCell(p: Position): Boolean = {
+    val different = Set(
+      left(up(p)),
+    )
+    val same = Set(
+      up(p),
+      right(p),
+      left(p),
+      down(p),
+      left(down(p)),
+      right(down(p)),
+      right(up(p)),
+    )
+
+    val (dFlipped, sFlipped) = flipped((different, same), p)
+    rotated((different, same), p).exists(isValid(_, positions(p)))
+    || rotated((dFlipped, sFlipped), p).exists(isValid(_, positions(p)))
+  }
+
+  def isT4ShapedCell(p: Position): Boolean = {
+    val different = Set(
+      left(up(p)),
+      down(p),
+    )
+    val same = Set(
+      up(p),
+      right(p),
+      left(p),
+      right(up(p)),
+    )
+
+    val (dFlipped, sFlipped) = flipped((different, same), p)
+    rotated((different, same), p).exists(isValid(_, positions(p)))
+    || rotated((dFlipped, sFlipped), p).exists(isValid(_, positions(p)))
   }
 
   def isXShapedCell(p: Position): Boolean = {
@@ -148,10 +220,15 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     isValid((different, same), positions(p))
   }
 
-  def rotate(positions: (Set[Position], Set[Position]), pivot: Position): Set[(Set[Position], Set[Position])] = {
+  def rotated(positions: (Set[Position], Set[Position]), pivot: Position): Set[(Set[Position], Set[Position])] = {
     LazyList.iterate(positions) { case (different, same) => {
       (different.map(p => rotate(pivot, p)), same.map(p => rotate(pivot, p)))
     }}.take(4).toSet
+  }
+
+  def flipped(positions: (Set[Position], Set[Position]), pivot: Position): (Set[Position], Set[Position]) = {
+    val (different, same) = positions
+    (different.map(p => flip(pivot, p)), same.map(p => flip(pivot, p)))
   }
 
   def isValid[T](ps: (Set[Position], Set[Position]), value: T): Boolean = {
@@ -163,6 +240,19 @@ class CornerCounter[T](val positions: Map[Position, T]) {
   def right(p: Position): Position = (p._1, p._2 + 1)
   def up(p: Position): Position = (p._1 - 1, p._2)
   def down(p: Position): Position = (p._1 + 1, p._2)
+
+  /** @return the flipped position (vertial the given pivot) */
+  def flip(pivot: Position, p: Position): Position = {
+    if (p == up(pivot)) p 
+    else if (p == down(pivot)) p 
+    else if (p == left(pivot)) right(pivot) 
+    else if (p == right(pivot)) left(pivot)
+    else if (p == left(up(pivot))) right(up(pivot)) 
+    else if (p == right(up(pivot))) left(up(pivot)) 
+    else if (p == right(down(pivot))) left(down(pivot)) 
+    else if (p == left(down(pivot))) right(down(pivot)) 
+    else throw new RuntimeException("Unexpected case") 
+  }
 
   /** @return the rotated position (90 degrees (clockwise) around the given pivot) */
   def rotate(pivot: Position, p: Position): Position = {

@@ -136,18 +136,46 @@ OOX
 - 1 corners
 ### I-shaped Cells
 ```
-?O?
-XOX
-?O?
+?X?
+OOO
+?X?
 ```
 - 0 corners
-### T-shaped Cells
+### I1-shaped Cells
+```
+?X?
+OOO
+OOO
+```
+- 0 corners
+### T1-shaped Cells
 ``` 
 XOX
 OOO
 ?X?
 ``` 
 - 2 corners
+### T2-shaped Cells
+``` 
+XOX
+OOO
+OOO
+``` 
+- 2 corners
+### T3-shaped Cells
+``` 
+XOO
+OOO
+OOO
+``` 
+- 1 corners
+### T4-shaped Cells
+``` 
+XOO
+OOO
+?X?
+``` 
+- 1 corners
 ### X-shaped Cells
 ```
 XOX
