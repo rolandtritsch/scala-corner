@@ -37,10 +37,10 @@ class CornerCounter[T](val positions: Map[Position, T]) {
   }
 
   /** All regions in the grid. */
-  val regions = positions.groupMap(_._2)(_._1).view.mapValues(_.toSet).toMap
+  val regions = positions.groupMap(_._2)(_._1).view.mapValues(_.toSet).toMap[T, Set[Position]]
 
   /** Map of all positions and their corner count in the grid. This is the thing to use. */
-  val corners = positions.keySet.map(calcCorner).toMap.withDefault(_ => 0)
+  val corners = positions.keySet.map(calcCorner).toMap[Position, Int].withDefault(_ => 0)
 
   // --- private stuff
 
@@ -403,7 +403,7 @@ object CornerCounter {
   }
 
   /** @return the Set of expected corner counts (for testing). */
-  def fromResourceExpected(path: String): Set[((Int, Int), Int)] = {
+  def fromResourceExpected(path: String): Set[(Position, Int)] = {
     require(path.nonEmpty, "path.nonEmpty")
     logger.debug(s"path: ${path}")
 
