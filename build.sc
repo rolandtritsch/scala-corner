@@ -16,10 +16,10 @@ import mill.contrib.sonatypecentral.SonatypeCentralPublishModule
 
 object Configuration {
   val crossVersions = Seq("2.13.12", "3.4.3")
-  
+
   val moduleOrganization = "org.tritsch"
   val moduleName = "scala-corner"
-  val moduleVersion = "1.0.3"
+  val moduleVersion = "1.0.4"
   val moduleDescription = "A simple corner counter"
   val moduleUrl = "https://github.com/rolandtritsch/scala-corner"
   val moduleDeveloperUsername = "rolandtritsch"
