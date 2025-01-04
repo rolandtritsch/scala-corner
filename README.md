@@ -85,6 +85,11 @@ Note: Make sure the tag is new and unique.
 
 Please also create a new release on GitHub (manually).
 
+Alternatively you can just run ...
+```bash
+gh release create 1.0.3 --generate-notes
+```
+
 ## How to test and debug it?
 
 If you need to debug the lib you can change the log-level in `logback.xml`.
