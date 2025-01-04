@@ -14,25 +14,49 @@ import mill.contrib.scoverage.ScoverageModule
 import $ivy.`com.lihaoyi::mill-contrib-sonatypecentral:`
 import mill.contrib.sonatypecentral.SonatypeCentralPublishModule
 
-object main
-  extends ScalaModule 
+object Configuration {
+  val crossVersions = Seq("2.13.12", "3.4.3")
+  
+  val moduleOrganization = "org.tritsch"
+  val moduleName = "scala-corner"
+  val moduleVersion = "1.0.3"
+  val moduleDescription = "A simple corner counter"
+  val moduleUrl = "https://github.com/rolandtritsch/scala-corner"
+  val moduleDeveloperUsername = "rolandtritsch"
+  val moduleDeveloper = "Roland Tritsch"
+  val moduleDeveloperUrl = "https://github.com/rolandtritsch"
+}
+
+object main extends Cross[MainModule](Configuration.crossVersions)
+
+trait MainModule extends CrossScalaModule 
   with ScalafmtModule 
   with ScalafixModule 
   with ScoverageModule
   with SonatypeCentralPublishModule
   with PublishModule
 {
-  def artifactName = "scala-corner"
-  def publishVersion = "1.0.3"
+  def crossScalaVersion = crossValue
+  def artifactName = Configuration.moduleName
+  def publishVersion = Configuration.moduleVersion
   def pomSettings = PomSettings(
-    description = "A simple corner counter",
-    organization = "org.tritsch",
-    url = "https://github.com/rolandtritsch/scala-corner",
+    description = Configuration.moduleDescription,
+    organization = Configuration.moduleOrganization,
+    url = Configuration.moduleUrl,
     licenses = Seq(License.MIT),
-    versionControl = VersionControl.github("rolandtritsch", "scala-corner"),
-    developers = Seq(Developer("rolandtritsch", "Roland Tritsch", "https://github.com/rolandtritsch"))
+    versionControl = VersionControl.github(
+      Configuration.moduleDeveloperUsername, 
+      Configuration.moduleName
+      ),
+    developers = Seq(
+      Developer(
+        Configuration.moduleDeveloperUsername, 
+        Configuration.moduleDeveloper, 
+        Configuration.moduleDeveloperUrl
+      )
+    )
   )
-  def scalaVersion = "3.4.3"
+  
   def scalacOptions = Seq("-Wunused:imports", "-deprecation", "-Xfatal-warnings")
   def scoverageVersion = "2.2.1"
   def ivyDeps = Agg(

@@ -23,7 +23,7 @@ class CornerCounterTest extends munit.ScalaCheckSuite {
     assertEquals(expected.size, 30)
     assertEquals(counter.positions.size, counter.corners.size)
     assertEquals(counter.regions.size, 5)
-    assertEquals(counter.corners.toSet, expected.filter { (p, _) => counter.positions.contains(p) })
+    assertEquals(counter.corners.toSet, expected.filter { case (p, _) => counter.positions.contains(p) })
   }
 
   test("CornerCounter - single cell") {

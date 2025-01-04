@@ -1,19 +1,19 @@
 package corner
 
-type Position = (Int, Int)
+import CornerCounter.Position
 
 /** The CornerCounter. Initialized with a set of positions. */
 class CornerCounter[T](val positions: Map[Position, T]) {
   private val logger = com.typesafe.scalalogging.Logger(this.getClass.getName)
 
   /** @return a CornerCounter initialized with the contents of the given Array. */
-  def this(grid: Array[Array[T]])(using fromGrid: Array[Array[T]] => Map[Position, T]) = this(fromGrid(grid))
+  def this(grid: Array[Array[T]])(implicit fromGrid: Array[Array[T]] => Map[Position, T]) = this(fromGrid(grid))
 
   override def toString: String = 
     s"CornerCounter(positions=${positions}, regions=${regions}, corners=${corners})"
 
   /** @return a pretty string representation of the grid. */
-  def toStringPrettyGrid(using freeSpaceValue: T): String = {
+  def toStringPrettyGrid(implicit freeSpaceValue: T, isFreeSpace: (T => Boolean)): String = {
     val (maxX, maxY) = dimensions
     val ps = 
       (0 to maxX).map { x => {
@@ -232,8 +232,8 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     )
 
     val (dFlipped, sFlipped) = flipped((different, same), p)
-    rotated((different, same), p).exists(isValid(_, positions(p)))
-    || rotated((dFlipped, sFlipped), p).exists(isValid(_, positions(p)))
+    rotated((different, same), p).exists(isValid(_, positions(p))) || 
+    rotated((dFlipped, sFlipped), p).exists(isValid(_, positions(p)))
   }
 
   private def isT4ShapedCell(p: Position): Boolean = {
@@ -251,8 +251,8 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     )
 
     val (dFlipped, sFlipped) = flipped((different, same), p)
-    rotated((different, same), p).exists(isValid(_, positions(p)))
-    || rotated((dFlipped, sFlipped), p).exists(isValid(_, positions(p)))
+    rotated((different, same), p).exists(isValid(_, positions(p))) || 
+    rotated((dFlipped, sFlipped), p).exists(isValid(_, positions(p)))
   }
 
   private def isX1ShapedCell(p: Position): Boolean = {
@@ -291,8 +291,8 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     )
 
     val (dFlipped, sFlipped) = flipped((different, same), p)
-    rotated((different, same), p).exists(isValid(_, positions(p)))
-    || rotated((dFlipped, sFlipped), p).exists(isValid(_, positions(p)))
+    rotated((different, same), p).exists(isValid(_, positions(p))) || 
+    rotated((dFlipped, sFlipped), p).exists(isValid(_, positions(p)))
   }
 
   private def isZShapedCell(p: Position): Boolean = {
@@ -312,8 +312,8 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     )
 
     val (dFlipped, sFlipped) = flipped((different, same), p)
-    rotated((different, same), p).exists(isValid(_, positions(p)))
-    || rotated((dFlipped, sFlipped), p).exists(isValid(_, positions(p)))
+    rotated((different, same), p).exists(isValid(_, positions(p))) ||
+    rotated((dFlipped, sFlipped), p).exists(isValid(_, positions(p)))
   }
 
   private def rotated(positions: (Set[Position], Set[Position]), pivot: Position): Set[(Set[Position], Set[Position])] = {
@@ -376,10 +376,12 @@ class CornerCounter[T](val positions: Map[Position, T]) {
 
 /** The CornerCounter companion. */
 object CornerCounter {
+  type Position = (Int, Int)
+
   private val logger = com.typesafe.scalalogging.Logger(this.getClass.getName)
 
   /** @return a Map initialized with the contents of the given Array. Used by the ctor. */
-  given fromGrid[T](using isFreeSpace: (T => Boolean))(using freeSpaceValue: T): (Array[Array[T]] => Map[Position, T]) = { grid =>
+  implicit def fromGrid[T](implicit isFreeSpace: (T => Boolean), freeSpaceValue: T): (Array[Array[T]] => Map[Position, T]) = { grid =>
     val positions = for {
       x <- grid.indices
       y <- grid(x).indices
@@ -389,8 +391,8 @@ object CornerCounter {
   }
 
   // Note: For Int this can be Int.MinValue
-  given freeSpaceValue: Char = '.'
-  given isFreeSpace: (Char => Boolean) = _ == freeSpaceValue
+  implicit val freeSpaceValue: Char = '.'
+  implicit val isFreeSpace: (Char => Boolean) = _ == freeSpaceValue
 
   /** @return a CornerCounter initialized with the contents of the given resource. */
   def fromResource(path: String): CornerCounter[Char] = {
