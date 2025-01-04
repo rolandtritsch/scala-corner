@@ -38,11 +38,14 @@ libraryDependencies += "org.tritsch" %% "scala-corner" % "1.0.3"
 ```scala
 val counter = new CornerCounter(grid)
 ```
-3. Call the `count` method with the cordinates you are interested in to get 
+3. Use the `corners` map with the cordinates you are interested in to get 
    the number of corners for that cell, e.g. ...
 ```scala
 val count = counter.corners((0, 0))
 ```
+You can obviously use the `regions` map with the `corners` map to get
+all corners of a region (and then sum them up).
+
 The constructor either takes an `Array[Array[T]]` or a `Map[(Int, Int), T]`
 to describe all cells of the regions that need to be counted.
 
@@ -103,8 +106,10 @@ is not in the `Map` is free space (by returning a default value that represents
 free space). This also means that the grid (or more specifically the `Map`) 
 does not have to be a square.
 
-Note: The grid can contain multiple regions with same cell values that are
-not connected. This is not a region finder. It is a corner counter.
+Note: The grid can contain multiple regions with the same cell values (BUT they 
+need to be horizontally and vertically and diagonally separated from each other
+(by another region and/or free space)). This is not a region finder. It is a 
+corner counter.
 
 This implementation is not optimized for performance. But it will probably be 
 good enough for a lot of use cases. And it can be used (as a reference 
@@ -114,7 +119,9 @@ frameworks).
 Conceptionally the implementation moves a 3x3 grid over all cells and checks
 if the middle cell matches one of the patterns below.
 
-Note: (Some of) These patterns need to be (flipped and then) rotated 4 times.
+Note: Free space is considered to have 0 corners. 
+
+Note: (Some of) These patterns need to be flipped and/or rotated 3 times.
 
 The patterns use the following symbols ...
 

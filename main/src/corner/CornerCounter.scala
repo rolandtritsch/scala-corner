@@ -4,7 +4,7 @@ type Position = (Int, Int)
 
 /** The CornerCounter. Initialized with a set of positions. */
 class CornerCounter[T](val positions: Map[Position, T]) {
-  val logger = com.typesafe.scalalogging.Logger(this.getClass.getName)
+  private val logger = com.typesafe.scalalogging.Logger(this.getClass.getName)
 
   /** @return a CornerCounter initialized with the contents of the given Array. */
   def this(grid: Array[Array[T]])(using fromGrid: Array[Array[T]] => Map[Position, T]) = this(fromGrid(grid))
@@ -36,7 +36,7 @@ class CornerCounter[T](val positions: Map[Position, T]) {
     s"corners:\n${cs}"
   }
 
-  /** All regions in the grid. Just used for testing. */
+  /** All regions in the grid. */
   val regions = positions.groupMap(_._2)(_._1).view.mapValues(_.toSet).toMap
 
   /** Map of all positions and their corner count in the grid. This is the thing to use. */
@@ -361,7 +361,7 @@ class CornerCounter[T](val positions: Map[Position, T]) {
   }
 
   /** @return the rotated position (90 degrees (clockwise) around the given pivot) */
-  def rotate(pivot: Position, p: Position): Position = {
+  private def rotate(pivot: Position, p: Position): Position = {
     if (p == up(pivot)) right(pivot) 
     else if (p == down(pivot)) left(pivot) 
     else if (p == left(pivot)) up(pivot) 
@@ -376,9 +376,9 @@ class CornerCounter[T](val positions: Map[Position, T]) {
 
 /** The CornerCounter companion. */
 object CornerCounter {
-  val logger = com.typesafe.scalalogging.Logger(this.getClass.getName)
+  private val logger = com.typesafe.scalalogging.Logger(this.getClass.getName)
 
-  /** @return a Mapinitialized with the contents of the given Array. Used by the ctor. */
+  /** @return a Map initialized with the contents of the given Array. Used by the ctor. */
   given fromGrid[T](using isFreeSpace: (T => Boolean))(using freeSpaceValue: T): (Array[Array[T]] => Map[Position, T]) = { grid =>
     val positions = for {
       x <- grid.indices
